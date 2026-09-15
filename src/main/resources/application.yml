@@ -5,4 +5,8 @@ spring:
       group-id: consumer-service-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+      properties:
+        spring.json.value.default.type: taskplanner.emailsender.dto.EmailSendingTask
+        spring.json.trusted.packages: taskplanner.emailsender.dto
+        spring.json.use.type.headers: false
