@@ -25,6 +25,10 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-kafka-test")
     testImplementation("org.springframework.boot:spring-boot-starter-mail-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    // Lombok / MapStruct
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
 }
 
 tasks.withType<Test> {

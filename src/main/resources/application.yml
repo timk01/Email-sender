@@ -3,10 +3,25 @@ spring:
     bootstrap-servers: localhost:9092
     consumer:
       group-id: consumer-service-group
-      auto-offset-reset: earliest
+      auto-offset-reset: latest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
       properties:
         spring.json.value.default.type: taskplanner.emailsender.dto.EmailSendingTask
         spring.json.trusted.packages: taskplanner.emailsender.dto
         spring.json.use.type.headers: false
+
+  mail:
+    host: smtp.go2.unisender.ru
+    port: 465
+    username: ${MAIL_SMTP_USERNAME}
+    password: ${MAIL_SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+
+mail:
+  address: ${MAIL_FROM}
