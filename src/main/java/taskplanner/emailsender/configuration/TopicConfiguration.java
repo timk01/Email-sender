@@ -16,4 +16,13 @@ public class TopicConfiguration {
                 .replicas(1)
                 .build();
     }
+
+    @Bean
+    public NewTopic summarySendingTopic() {
+        return TopicBuilder
+                .name(KafkaTopics.SUMMARY_SENDING)
+                .partitions(1)
+                .replicas(1)
+                .build();
+    }
 }
