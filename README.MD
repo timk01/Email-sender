@@ -2,9 +2,16 @@
 
 Независимый сервис для отправки email-уведомлений.
 
-Сервис получает задачи на отправку писем из Kafka, десериализует сообщения в `EmailSendingTask` и отправляет письма указанному получателю через SMTP с помощью Spring Mail.
+Сервис получает сообщения из Kafka и отправляет письма указанному получателю через SMTP с помощью Spring Mail.
+
+Email Sender используется в двух сценариях:
+
+- отправка обычных email-задач (`EmailSendingTask`), в том числе приветственного письма после регистрации пользователя;
+- отправка ежедневного summary-отчёта (`UserReport`), который формируется Scheduler после получения суммаризации задач пользователя.
 
 ## Схема работы
+
+Обычные email-уведомления:
 
 ```text
 Kafka
@@ -16,9 +23,26 @@ Kafka
 → получатель
 ```
 
-## Формат сообщения
+Ежедневный отчёт:
 
-Сервис получает сообщения из Kafka-топика:
+```text
+Scheduler
+→ SUMMARY_SENDING_TASKS
+→ @KafkaListener
+→ UserReport
+→ EmailSendingTask
+→ Spring Mail
+→ SMTP-провайдер
+→ получатель
+```
+
+Таким образом, Email Sender напрямую связан со Scheduler через Kafka-топик `SUMMARY_SENDING_TASKS`.
+
+## Форматы сообщений
+
+### Обычное email-уведомление
+
+Сервис получает `EmailSendingTask` из Kafka-топика:
 
 ```text
 EMAIL_SENDING_TASKS
@@ -39,6 +63,29 @@ EMAIL_SENDING_TASKS
 - `recipient` — email получателя;
 - `subject` — тема письма;
 - `text` — текст письма.
+
+### Ежедневный summary-отчёт
+
+Scheduler публикует `UserReport` в Kafka-топик:
+
+```text
+SUMMARY_SENDING_TASKS
+```
+
+Ожидаемая структура сообщения:
+
+```json
+{
+  "email": "user@example.com",
+  "summarization": "Daily task summary"
+}
+```
+
+Email Sender преобразует `UserReport` в `EmailSendingTask`:
+
+- `email` используется как адрес получателя;
+- тема письма — `summary report`;
+- `summarization` используется как текст письма.
 
 ## Используемые технологии
 
@@ -145,4 +192,11 @@ SMTP host Unisender Go зависит от датацентра аккаунта
 3. Настроить выбранный SMTP-провайдер.
 4. Запустить `EmailSenderApplication`.
 
-После запуска сервис слушает Kafka-топик `EMAIL_SENDING_TASKS` и отправляет письмо для каждой успешно полученной задачи.
+После запуска сервис слушает два Kafka-топика:
+
+```text
+EMAIL_SENDING_TASKS
+SUMMARY_SENDING_TASKS
+```
+
+Первый используется для обычных email-уведомлений, второй — для ежедневных summary-отчётов, поступающих непосредственно от Scheduler.
