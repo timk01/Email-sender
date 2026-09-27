@@ -36,12 +36,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME_TASK_PLANNER }}
           password: ${{ secrets.DOCKERHUB_TOKEN_TASK_PLANNER }}
 
-      - name: Build and push Scheduler
+      - name: Build and push Email-sender
         uses: docker/build-push-action@v7
         with:
           context: .
           file: ./Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME_TASK_PLANNER }}/scheduler:latest
-            ${{ secrets.DOCKERHUB_USERNAME_TASK_PLANNER }}/scheduler:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME_TASK_PLANNER }}/email-sender:latest
+            ${{ secrets.DOCKERHUB_USERNAME_TASK_PLANNER }}/email-sender:${{ github.sha }}
